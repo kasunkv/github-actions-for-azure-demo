@@ -1,0 +1,33 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        
+      - name: Build Docker Image
+        run: docker build . --file GitHubActions.Azure.Web\Dockerfile  --tag ${{ secrets.DOCKER_USERNAME }}/gh-actions-demo:${{ github.sha }}
+
+      - name: Push Docker Image
+        run: |
+          docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/gh-actions-demo:${{ github.sha }}
+      
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/webapps-container-deploy@v1
+        with:
+          app-name: 'gh-actions-docker-web'
+          images: '${{ secrets.DOCKER_USERNAME }}/gh-actions-demo:${{ github.sha }}'
