@@ -1,4 +1,4 @@
-name: Deploy to Azure
+name: Deploy to Azure - Docker
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-docker:
 
     runs-on: ubuntu-latest
 
@@ -27,7 +27,8 @@ jobs:
         with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: azure/webapps-container-deploy@v1
+      - name: Deploy Docker Container to Web App
+        uses: azure/webapps-container-deploy@v1
         with:
           app-name: 'gh-actions-docker-web'
           images: '${{ secrets.DOCKER_USERNAME }}/gh-actions-demo:${{ github.sha }}'
