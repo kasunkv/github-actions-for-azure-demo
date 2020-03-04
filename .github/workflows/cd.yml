@@ -20,7 +20,15 @@ jobs:
           dotnet-version: 3.1.102
           
       - name: Publish Project
-        run: dotnet build --configuration Release
+        run: dotnet publish -c Release --output dist/
       
-      - name: Run Unit Tests
-        run: dotnet test UnitTests/GitHubActions.Azure.Tests/GitHubActions.Azure.Tests.csproj
+      - name: Login to Azure
+        uses: Azure/login@v1
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy Web App
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: music-store-gh
+          package: dist/
